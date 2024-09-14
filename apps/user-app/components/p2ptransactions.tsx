@@ -1,5 +1,4 @@
 import { Card } from "@repo/ui/card"
-
 export const P2PTransactions = ({
     transactions
 }: {
@@ -29,8 +28,13 @@ export const P2PTransactions = ({
                     </div>
                 </div>
                 <div className="flex flex-col justify-center">
-                {t.direction === 'received' ? `+ Rs ${t.amount / 100}` : `- Rs ${t.amount / 100}`}
-                </div>
+                        {/* Conditional styling based on direction */}
+                        <span 
+                          className={t.direction === 'received' ? 'text-green-500' : 'text-red-500'}
+                        >
+                            {t.direction === 'received' ? `+ Rs ${t.amount / 100}` : `- Rs ${t.amount / 100}`}
+                        </span>
+                    </div>
 
             </div>)}
         </div>

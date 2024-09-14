@@ -1,54 +1,50 @@
-import express from "express";
-import db from "@repo/db/client";
+import express from 'express';
+import db from '@repo/db/client';
+
 const app = express();
+app.use(express.json());
 
-app.use(express.json())
+app.post('/hdfcWebhook', async (req, res) => {
+    const { token, userId, amount, status } = req.body;
 
-app.post("/hdfcWebhook", async (req, res) => {
     
-    const paymentInformation: {
-        token: string;
-        userId: string;
-        amount: string
-    } = {
-        token: req.body.token,
-        userId: req.body.user_identifier,
-        amount: req.body.amount
-    };
+    if (!token || !userId || !amount || !status) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     try {
+        
         await db.$transaction([
             db.balance.updateMany({
                 where: {
-                    userId: Number(paymentInformation.userId)
+                    userId: Number(userId)
                 },
                 data: {
                     amount: {
-                        // You can also get this from your DB
-                        increment: Number(paymentInformation.amount)
+                        increment: Number(amount)
                     }
                 }
             }),
             db.onRampTransaction.updateMany({
                 where: {
-                    token: paymentInformation.token
-                }, 
+                    token: token
+                },
                 data: {
-                    status: "Success",
+                    status: status
                 }
             })
         ]);
 
-        res.json({
-            message: "Captured"
-        })
-    } catch(e) {
+        
+        res.json({ message: 'Captured' });
+    } catch (e) {
         console.error(e);
-        res.status(411).json({
-            message: "Error while processing webhook"
-        })
+        
+        res.status(500).json({ message: 'Error while processing webhook' });
     }
+});
 
-})
 
-app.listen(3003);
+app.listen(3003, () => {
+    console.log('Webhook server listening on port 3003');
+});

@@ -1,17 +1,14 @@
 "use client"
 import { Button } from "@repo/ui/button";
 import { Card } from "@repo/ui/card";
-import { Center } from "@repo/ui/center";
 import { Select } from "@repo/ui/select";
 import { use, useState } from "react";
 import { TextInput } from "@repo/ui/textinput";
-
-import { redirect } from "next/dist/server/api-utils";
 import { createOnrampTransaction } from "../app/lib/actions/createOnrampTxn";
 
 const SUPPORTED_BANKS = [{
     name: "HDFC Bank",
-    redirectUrl: "https://netbanking.hdfcbank.com"
+    redirectUrl: "https:/hdfc.com"
 }, {
     name: "Axis Bank",
     redirectUrl: "https://www.axisbank.com/"
