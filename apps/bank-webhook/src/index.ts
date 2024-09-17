@@ -5,41 +5,30 @@ const app = express();
 app.use(express.json());
 
 app.post('/hdfcWebhook', async (req, res) => {
-    const { token, userId, amount, status } = req.body;
+    const { token, userId, amount } = req.body;
 
-    
-    if (!token || !userId || !amount || !status) {
+    if (!token || !userId || !amount) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
     try {
-        
-        await db.$transaction([
+        console.log(`Processing transaction: token=${token}, userId=${userId}, amount=${amount}`);
+
+        const result = await db.$transaction([
             db.balance.updateMany({
-                where: {
-                    userId: Number(userId)
-                },
-                data: {
-                    amount: {
-                        increment: Number(amount)
-                    }
-                }
+                where: { userId: Number(userId) },
+                data: { amount: { increment: Number(amount) } }
             }),
             db.onRampTransaction.updateMany({
-                where: {
-                    token: token
-                },
-                data: {
-                    status: status
-                }
+                where: { token: token },
+                data: { status: "Success" }
             })
         ]);
 
-        
+        console.log('Transaction result:', result);
         res.json({ message: 'Captured' });
     } catch (e) {
-        console.error(e);
-        
+        console.error('Error during transaction:', e);
         res.status(500).json({ message: 'Error while processing webhook' });
     }
 });
